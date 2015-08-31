@@ -38,13 +38,30 @@ subsection {* Conversions between different truth value representations *}
 fun ev_to_prob :: "evidence \<Rightarrow> probability" where
 "ev_to_prob ev = (let w = w_total ev; f = w_plus ev / w; c = w / (w + k_param) in probability.make f c)"
 
+text {* A shortcut for floor function. *}
+definition floor_real :: "real \<Rightarrow> int" where "floor_real \<equiv> Real.floor_ceiling_real_inst.floor_real"
+
+fun prob_to_ev :: "probability \<Rightarrow> evidence" where
+"prob_to_ev p = (let f = f_freq p; c = c_conf p; k = real_of_int k_param; wp = k*f*c/(1 - c); w = k*c/(1 - c) in evidence.make (floor_real wp) (floor_real w))"
 
 subsection {* Truth-value functions *}
 
 subsubsection {* Strong syllogism *}
 
+text {* Deduction. *}
 fun F_ded :: "probability \<Rightarrow> probability \<Rightarrow> probability" where
 "F_ded prob1 prob2 = (let f1 = f_freq prob1; c1 = c_conf prob1; f2 = f_freq prob2; c2 = c_conf prob2 in
                       probability.make (and2 f1 f2) (and4 f1 f2 c1 c2))"
 
+text {* Analogy. *}
+fun F_ana :: "probability \<Rightarrow> probability \<Rightarrow> probability" where
+"F_ana prob1 prob2 = (let f1 = f_freq prob1; c1 = c_conf prob1; f2 = f_freq prob2; c2 = c_conf prob2 in
+                      probability.make (and2 f1 f2) (and3 f2 c1 c2))"
+
+text {* Resemblance. *}
+fun F_res :: "probability \<Rightarrow> probability \<Rightarrow> probability" where
+"F_res prob1 prob2 = (let f1 = f_freq prob1; c1 = c_conf prob1; f2 = f_freq prob2; c2 = c_conf prob2 in
+                      probability.make (and2 f1 f2) (and3 (or2 f1 f2) c1 c2))"
+
 end
+
